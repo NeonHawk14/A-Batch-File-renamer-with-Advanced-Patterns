@@ -16,3 +16,7 @@ A React-based file renaming tool with regex support, sequential numbering, and c
 3. Configure counter settings
 4. Generate preview
 5. Download execution scripts
+   
+## WebPage Preview 
+<img width="936" height="867" alt="image" src="https://github.com/user-attachments/assets/eb134f27-a0f5-4ca3-b2e3-ed7a6e4d79df" />
+
