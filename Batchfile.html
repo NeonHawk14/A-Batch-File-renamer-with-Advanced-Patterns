@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Batch File Renamer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .file-list {
+            max-height: 250px;
+            overflow-y: auto;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover {
+            background: #f3f4f6;
+        }
+
+        .rule-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .rule-item:hover {
+            border-color: #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-regex {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-case {
+            background: #e9d5ff;
+            color: #6b21a8;
+        }
+
+        .preview-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #10b981;
+            transition: all 0.2s ease;
+        }
+
+        .preview-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-item.no-change {
+            border-left-color: #9ca3af;
+        }
+
+        .original-name {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .new-name {
+            color: #10b981;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .new-name.no-change {
+            color: #9ca3af;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border: 2px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .help-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .help-box h4 {
+            color: #1e40af;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .placeholder-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .placeholder-code {
+            background: #1e40af;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Advanced Batch File Renamer</h1>
+            <p class="subtitle">Powerful file renaming with regex, counters, and case conversion</p>
+        </div>
+
+        <!-- File Upload Section -->
+        <div class="section">
+            <div class="section-title">📁 Upload Files</div>
+            <input type="file" id="fileInput" multiple style="display: none;">
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    📤 Select Files
+                </button>
+                <button class="btn btn-danger hidden" id="clearAllBtn" onclick="clearAllFiles()">
+                    🗑️ Clear All
+                </button>
+            </div>
+            <div id="fileList" class="file-list hidden" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Renaming Rules Section -->
+        <div class="section">
+            <div class="section-title">⚙️ Add Renaming Rule</div>
+            
+            <div class="grid-2">
+                <div class="input-group">
+                    <label for="pattern">Pattern <span id="regexLabel"></span></label>
+                    <input type="text" id="pattern" placeholder="e.g., old_name">
+                </div>
+                <div class="input-group">
+                    <label for="replacement">Replacement</label>
+                    <input type="text" id="replacement" placeholder="e.g., new_name_{counter}">
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="input-group">
+                    <label for="caseConversion">Case Conversion</label>
+                    <select id="caseConversion">
+                        <option value="none">None</option>
+                        <option value="upper">UPPERCASE</option>
+                        <option value="lower">lowercase</option>
+                        <option value="title">Title Case</option>
+                        <option value="camel">camelCase</option>
+                    </select>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="useRegex">
+                    <label for="useRegex" style="margin: 0;">Use Regex</label>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="addRule()" style="margin-top: 15px;">
+                ➕ Add Rule
+            </button>
+        </div>
+
+        <!-- Active Rules -->
+        <div id="rulesSection" class="section hidden">
+            <div class="section-title">📋 Active Rules (<span id="ruleCount">0</span>)</div>
+            <div id="rulesList"></div>
+        </div>
+
+        <!-- Counter Settings -->
+        <div class="section">
+            <div class="section-title">🔢 Counter Settings</div>
+            <div class="grid-2">
+                <div class="input-group">
+                    <label for="counterStart">Counter Start</label>
+                    <input type="number" id="counterStart" value="1">
+                </div>
+                <div class="input-group">
+                    <label for="counterPadding">Counter Padding (digits)</label>
+                    <input type="number" id="counterPadding" value="3" min="1" max="10">
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group" style="margin-bottom: 30px;">
+            <button class="btn btn-primary" onclick="generatePreview()">
+                ✅ Generate Preview
+            </button>
+            <button class="btn btn-success hidden" id="downloadBtn" onclick="downloadScripts()">
+                💾 Download Scripts
+            </button>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="errorAlert" class="alert alert-error hidden">
+            <span>⚠️</span>
+            <span id="errorMessage"></span>
+        </div>
+
+        <!-- Preview Section -->
+        <div id="previewSection" class="section hidden">
+            <div class="section-title">👀 Preview (<span id="previewCount">0</span> files)</div>
+            <div id="previewList" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="help-box">
+            <h4>💡 Available Placeholders</h4>
+            <div class="placeholder-item">
+                <span class="placeholder-code">{counter}</span>
+                <span>Sequential number with padding</span>
+            </div>
+            <div class="placeholder-item">
+                <span class="placeholder-code">{index}</span>
+                <span>File index (1-based)</span>
+            </div>
+            <div class="placeholder-item">
+                <span class="placeholder-code">{date}</span>
+                <span>Current date (YYYY-MM-DD)</span>
+            </div>
+            <div class="placeholder-item">
+                <span class="placeholder-code">{time}</span>
+                <span>Current time (HH-MM-SS)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let files = [];
+        let rules = [];
+        let previews = [];
+
+        // File upload handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const newFiles = Array.from(e.target.files);
+            files = [...files, ...newFiles];
+            updateFileList();
+            hideError();
+        });
+
+        // Regex checkbox handler
+        document.getElementById('useRegex').addEventListener('change', function(e) {
+            const label = document.getElementById('regexLabel');
+            const patternInput = document.getElementById('pattern');
+            if (e.target.checked) {
+                label.textContent = '(Regex)';
+                patternInput.placeholder = 'e.g., \\d+';
+            } else {
+                label.textContent = '';
+                patternInput.placeholder = 'e.g., old_name';
+            }
+        });
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            const clearBtn = document.getElementById('clearAllBtn');
+            
+            if (files.length === 0) {
+                fileList.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+                return;
+            }
+
+            fileList.classList.remove('hidden');
+            clearBtn.classList.remove('hidden');
+            
+            fileList.innerHTML = `<strong>Uploaded Files (${files.length})</strong><br><br>` + 
+                files.map((file, index) => `
+                    <div class="file-item">
+                        <span>📄 ${file.name}</span>
+                        <button onclick="removeFile(${index})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem;">×</button>
+                    </div>
+                `).join('');
+        }
+
+        function removeFile(index) {
+            files.splice(index, 1);
+            updateFileList();
+            if (previews.length > 0) {
+                previews.splice(index, 1);
+                updatePreview();
+            }
+        }
+
+        function clearAllFiles() {
+            files = [];
+            previews = [];
+            updateFileList();
+            document.getElementById('previewSection').classList.add('hidden');
+            document.getElementById('downloadBtn').classList.add('hidden');
+        }
+
+        function addRule() {
+            const pattern = document.getElementById('pattern').value;
+            const replacement = document.getElementById('replacement').value;
+            const useRegex = document.getElementById('useRegex').checked;
+            const caseConversion = document.getElementById('caseConversion').value;
+
+            if (!pattern) {
+                showError('Please enter a pattern');
+                return;
+            }
+
+            rules.push({
+                id: Date.now(),
+                pattern,
+                replacement,
+                useRegex,
+                caseConversion
+            });
+
+            document.getElementById('pattern').value = '';
+            document.getElementById('replacement').value = '';
+            
+            updateRulesList();
+            hideError();
+        }
+
+        function removeRule(id) {
+            rules = rules.filter(rule => rule.id !== id);
+            updateRulesList();
+        }
+
+        function updateRulesList() {
+            const rulesSection = document.getElementById('rulesSection');
+            const rulesList = document.getElementById('rulesList');
+            const ruleCount = document.getElementById('ruleCount');
+
+            if (rules.length === 0) {
+                rulesSection.classList.add('hidden');
+                return;
+            }
+
+            rulesSection.classList.remove('hidden');
+            ruleCount.textContent = rules.length;
+
+            rulesList.innerHTML = rules.map((rule, index) => `
+                <div class="rule-item">
+                    <div>
+                        <strong>Rule ${index + 1}:</strong> 
+                        "${rule.pattern}" → "${rule.replacement}"
+                        ${rule.useRegex ? '<span class="badge badge-regex">REGEX</span>' : ''}
+                        ${rule.caseConversion !== 'none' ? `<span class="badge badge-case">${rule.caseConversion}</span>` : ''}
+                    </div>
+                    <button onclick="removeRule(${rule.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.5rem;">×</button>
+                </div>
+            `).join('');
+        }
+
+        function applyRenaming(filename, fileIndex) {
+            const ext = filename.lastIndexOf('.') > 0 ? filename.substring(filename.lastIndexOf('.')) : '';
+            let nameWithoutExt = ext ? filename.substring(0, filename.lastIndexOf('.')) : filename;
+
+            rules.forEach(rule => {
+                try {
+                    let replacementText = rule.replacement;
+                    
+                    const counterStart = parseInt(document.getElementById('counterStart').value) || 1;
+                    const counterPadding = parseInt(document.getElementById('counterPadding').value) || 3;
+                    const counterValue = counterStart + fileIndex;
+                    const paddedCounter = String(counterValue).padStart(counterPadding, '0');
+                    
+                    replacementText = replacementText.replace(/\{counter\}/g, paddedCounter);
+                    replacementText = replacementText.replace(/\{index\}/g, String(fileIndex + 1));
+                    
+                    const now = new Date();
+                    replacementText = replacementText.replace(/\{date\}/g, now.toISOString().split('T')[0]);
+                    replacementText = replacementText.replace(/\{time\}/g, now.toTimeString().split(' ')[0].replace(/:/g, '-'));
+
+                    if (rule.useRegex) {
+                        const regex = new RegExp(rule.pattern, 'g');
+                        nameWithoutExt = nameWithoutExt.replace(regex, replacementText);
+                    } else {
+                        nameWithoutExt = nameWithoutExt.split(rule.pattern).join(replacementText);
+                    }
+
+                    switch (rule.caseConversion) {
+                        case 'upper':
+                            nameWithoutExt = nameWithoutExt.toUpperCase();
+                            break;
+                        case 'lower':
+                            nameWithoutExt = nameWithoutExt.toLowerCase();
+                            break;
+                        case 'title':
+                            nameWithoutExt = nameWithoutExt.replace(/\w\S*/g, txt => 
+                                txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+                            );
+                            break;
+                        case 'camel':
+                            nameWithoutExt = nameWithoutExt.replace(/[-_\s]+(.)?/g, (_, c) => 
+                                c ? c.toUpperCase() : ''
+                            );
+                            break;
+                    }
+                } catch (err) {
+                    throw new Error(`Error in rule: ${err.message}`);
+                }
+            });
+
+            return nameWithoutExt + ext;
+        }
+
+        function generatePreview() {
+            if (files.length === 0) {
+                showError('Please upload files first');
+                return;
+            }
+
+            if (rules.length === 0) {
+                showError('Please add at least one renaming rule');
+                return;
+            }
+
+            try {
+                previews = files.map((file, index) => {
+                    const newName = applyRenaming(file.name, index);
+                    return {
+                        original: file.name,
+                        new: newName,
+                        changed: file.name !== newName
+                    };
+                });
+                
+                updatePreview();
+                hideError();
+                document.getElementById('downloadBtn').classList.remove('hidden');
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        function updatePreview() {
+            const previewSection = document.getElementById('previewSection');
+            const previewList = document.getElementById('previewList');
+            const previewCount = document.getElementById('previewCount');
+
+            if (previews.length === 0) {
+                previewSection.classList.add('hidden');
+                return;
+            }
+
+            previewSection.classList.remove('hidden');
+            previewCount.textContent = previews.length;
+
+            previewList.innerHTML = previews.map(preview => `
+                <div class="preview-item ${!preview.changed ? 'no-change' : ''}">
+                    <div class="original-name">${preview.changed ? '✓' : '○'} ${preview.original}</div>
+                    <div class="new-name ${!preview.changed ? 'no-change' : ''}">→ ${preview.new}</div>
+                </div>
+            `).join('');
+        }
+
+        function downloadScripts() {
+            if (previews.length === 0) {
+                showError('Generate preview first');
+                return;
+            }
+
+            const bashScript = `#!/bin/bash
+# Batch File Renaming Script
+# Generated on ${new Date().toISOString()}
+
+echo "Starting batch file renaming..."
+
+${previews.map(p => 
+    p.changed ? `mv "${p.original}" "${p.new}" && echo "Renamed: ${p.original} -> ${p.new}"` : `# Skipped (no change): ${p.original}`
+).join('\n')}
+
+echo "Renaming complete!"
+`;
+
+            const windowsScript = `@echo off
+REM Batch File Renaming Script
+REM Generated on ${new Date().toISOString()}
+
+echo Starting batch file renaming...
+
+${previews.map(p => 
+    p.changed ? `ren "${p.original}" "${p.new}" && echo Renamed: ${p.original} -^> ${p.new}` : `REM Skipped (no change): ${p.original}`
+).join('\n')}
+
+echo Renaming complete!
+pause
+`;
+
+            downloadFile('rename_files.sh', bashScript);
+            downloadFile('rename_files.bat', windowsScript);
+        }
+
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showError(message) {
+            document.getElementById('errorAlert').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        function hideError() {
+            document.getElementById('errorAlert').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
